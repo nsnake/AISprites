@@ -1,0 +1,107 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --editor codebuddy --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --editor codebuddy --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --editor codebuddy --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --editor codebuddy --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --editor codebuddy --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --editor codebuddy --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --editor codebuddy --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --editor codebuddy --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --editor codebuddy --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ]
+  }
+}

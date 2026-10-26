@@ -1,0 +1,95 @@
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "PROXY_MANAGED",
+    "ANTHROPIC_BASE_URL": "http://127.0.0.1:15721",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-5",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME": "deepseek-v4-pro",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-7",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL_NAME": "deepseek-v4-pro",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-6",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL_NAME": "deepseek-v4-pro"
+  },
+  "includeCoAuthoredBy": false,
+  "theme": "dark",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "perl e:/code/perl/aisprites/Perl/client.pl --udp --host 127.0.0.1 --port 7788 --mode hook",
+            "timeout": 2
+          }
+        ]
+      }
+    ]
+  }
+}

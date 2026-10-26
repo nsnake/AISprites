@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Status Display</title>
+<style>
+  :root {
+    --bg: #0a0b0d;
+    --panel-bezel: #14161a;
+    --ink: #e8e6df;
+    --dim: #8a8f98;
+    --line: #23262c;
+    --accent: #f2b03c;
+    --ok: #7dc97f;
+    --bad: #e05d4f;
+    /* State colours -- one per glyph, used for the detail list dots only.
+       The panel itself is monochrome, exactly like the OLED. */
+    --c-thinking: #f2b03c;
+    --c-ai: #6cb2e8;
+    --c-busy: #d98246;
+    --c-success: #7dc97f;
+    --c-error: #e05d4f;
+    --c-alarm: #ff6b3d;
+    --c-idle: #9aa4b2;
+    --c-off: #4a5058;
+  }
+  html { color-scheme: dark; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI",
+                  "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.2px;
+  }
+  h1 .sub {
+    color: var(--dim);
+    font-weight: 400;
+    font-size: 12px;
+  }
+  #conn {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--dim);
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block;
+    flex: none;
+  }
+  .conn-on { background: var(--ok); }
+  .conn-off { background: var(--bad); }
+  /* Sound toggle: sits in the connection strip. Its click is also the most
+     natural first gesture to unlock the browser's audio autoplay policy. */
+  #snd-toggle {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--ink);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1;
+    padding: 3px 6px;
+    cursor: pointer;
+  }
+  #snd-toggle:hover { border-color: var(--dim); }
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(300px, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 820px) {
+    .cols { grid-template-columns: 1fr; }
+  }
+  .panel-box {
+    background: var(--panel-bezel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  /* The panel itself: 128x64 OLED pixels, scaled up. Crisp edges, no
+     smoothing -- image-rendering is what keeps the 1px focus ring and the
+     glyph staircases from blurring into mush. */
+  #panel {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    width: 512px;
+    height: 256px;
+    border-radius: 4px;
+    background: var(--bg);
+    cursor: default;
+  }
+  @media (max-width: 560px) {
+    #panel { width: 100%; height: auto; aspect-ratio: 2 / 1; }
+  }
+  .caption {
+    margin-top: 10px;
+    color: var(--dim);
+    font-size: 11.5px;
+  }
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+  h2 {
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+  }
+  .box {
+    background: var(--panel-bezel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    min-width: 0;
+  }
+  .hint { color: var(--dim); font-size: 12px; }
+  .sess {
+    border-bottom: 1px solid var(--line);
+    padding: 6px 0;
+    cursor: pointer;
+  }
+  .sess:last-child { border-bottom: none; }
+  .sess:hover .sid { color: var(--ink); }
+  .sess .row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sess .sid {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--dim);
+  }
+  .sess .ed {
+    font-size: 11px;
+    color: var(--dim);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0 5px;
+  }
+  .sess .st {
+    margin-left: auto;
+    font-size: 11.5px;
+    color: var(--ink);
+  }
+  .sess.selected .sid { color: var(--accent); }
+  .sess .hist {
+    margin: 6px 0 2px 16px;
+    font-size: 11px;
+    color: var(--dim);
+  }
+  .sess .hist div { display: flex; gap: 10px; }
+  .state-thinking { background: var(--c-thinking); }
+  .state-ai { background: var(--c-ai); }
+  .state-busy { background: var(--c-busy); }
+  .state-success { background: var(--c-success); }
+  .state-error { background: var(--c-error); }
+  .state-alarm { background: var(--c-alarm); }
+  .state-idle { background: var(--c-idle); }
+  .state-off { background: #4a5058; }
+  #feed {
+    max-height: 420px;
+    overflow-y: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  #feed .msg {
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+    padding: 2px 0;
+  }
+  #feed .ts { color: var(--dim); flex: none; }
+  #feed .body {
+    color: var(--ink);
+    white-space: pre-wrap;
+    break-all: break-word;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  footer {
+    margin-top: 18px;
+    color: var(--dim);
+    font-size: 11px;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin-top: 10px;
+  }
+  .legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--dim);
+    font-size: 11.5px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>AI Status Display <span class="sub">Playcat::AI::Sprites · 网页显示端</span></h1>
+    <div id="conn"><button id="snd-toggle" type="button" aria-label="声音开关"></button><span id="conn-status" class="dot conn-off"></span><span id="conn-text">连接中…</span></div>
+  </header>
+
+  <div class="cols">
+    <div>
+      <div class="panel-box">
+        <canvas id="panel" width="128" height="64"></canvas>
+        <div class="caption">
+          128×64 SSD1306 复刻视图。与 ESP32 端共用同一套图标与布局规则：
+          1–2 会话 48px、3 会话 40px、4–8 会话 28px 4×2 网格；
+          最近活跃会话带焦点框并独占动画；ready 只占槽不画图标；off 释放槽位。
+          点击图标可选中会话。
+        </div>
+        <div class="legend">
+          <span><i class="dot state-thinking"></i>thinking</span>
+          <span><i class="dot state-ai"></i>ai</span>
+          <span><i class="dot state-busy"></i>busy</span>
+          <span><i class="dot state-success"></i>success</span>
+          <span><i class="dot state-error"></i>error</span>
+          <span><i class="dot state-alarm"></i>alarm</span>
+          <span><i class="dot state-idle"></i>idle</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="box">
+        <h2>会话</h2>
+        <div id="details"><div class="hint">暂无会话。会话表为空时面板保持黑屏（与固件一致）。</div></div>
+      </div>
+      <div class="box">
+        <h2>原始消息流</h2>
+        <div id="feed"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    页面只订阅服务端 /ws 的转发（SSE），不直连状态服务端 —— 显示语义在浏览器侧维护，
+    与固件 SessionTable 对齐。
+  </footer>
+</div>
+
+<script src="icons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

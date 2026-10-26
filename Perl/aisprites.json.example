@@ -1,0 +1,19 @@
+{
+  "server": {
+    "socket": "/tmp/playcat-ai-sprites.sock",
+    "udp_addr": "0.0.0.0",
+    "udp_port": 8080,
+    "host": "0.0.0.0",
+    "port": 3000,
+    "max_sessions": 8
+  },
+  "client": {
+    "editor": "claude",
+    "socket": "/tmp/playcat-ai-sprites.sock",
+    "udp": false,
+    "host": "127.0.0.1",
+    "port": 8080,
+    "debug": false,
+    "debug_file": null
+  }
+}
