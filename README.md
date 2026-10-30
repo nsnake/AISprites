@@ -1,17 +1,21 @@
 # Playcat::AI::Sprites
 
-> 
-> 
 > 在 Vibe Coding 的时代，拥有多个 AI 编程助手已成常态——但你真的了解它们在做什么吗？
 > 
 > 这是一款 AI 编程助手工作监控工具，让你时刻掌握每个助手的实时状态，有效防止它们"偷懒"。兼容 Claude Code 和 CodeBuddy 等主流平台。
 > 
 > 核心特性：
 > 
-> - 实时监控 最多 8 个 Agent（与 ESP32 版保持一致，支持自定义扩展）
-> - 跨机器部署 在不同设备上运行不同的 AI 助手
+> - 实时监控 支持最多8个Agent同时工作的信息
+> - 集中监控 一个服务端收集多个客户端信息并推送
 
-## 
+## 界面预览
+
+![单会话：48px 大图标，busy 状态](screenshots/web-1session.png)
+
+![三个会话：40px 图标，焦点在最近的 success 会话](screenshots/web-3sessions.png)
+
+![七个会话：28px 4×2 网格，覆盖 busy / thinking / success / error / alarm / idle](screenshots/web-7sessions.png)
 
 ## 环境要求
 
@@ -46,10 +50,7 @@ cd Perl && perl server.pl
 cd Node && node web_client.js
 
 # 3. 浏览器打开 http://127.0.0.1:8991
-
 ```
-
-
 
 ## 接入编辑器 hook
 
@@ -71,8 +72,6 @@ hook 命令就一行 `client.pl --mode hook`，传输选项交给 `aisprites.jso
   **改完必须在 `/hooks` 菜单里审查放行**，未放行的 command hook 不会运行。
 
 - Windows 下路径用正斜杠即可，例如 `perl C:/xxxx/client.pl`。
-
-
 
 ### 监听与端点
 
@@ -161,8 +160,6 @@ curl http://127.0.0.1:3000/
 --help              帮助
 ```
 
-
-
 ## 网页客户端（web_client.js）
 
 零第三方依赖（Node 22+ 内置模块）。它订阅服务端的 `/ws`，把收到的帧原样转成
@@ -193,19 +190,6 @@ node web_client.js --port 8991 --server 192.168.3.201 --server-port 3000
 - **消息流**：每条事件的实时流水（时间戳 + 内容）。
 - **提示音**：会话切到 `success` / `error` 时播放；浏览器音频策略要求先在
   页面上点击一次解锁。
-
-### 当观察窗排障
-
-改服务端时，把网页客户端指到测试实例，页面自带会话列表和消息流：
-
-```bash
-perl server.pl --port 3991 --udp-port 8091 --socket /tmp/playcat-test.sock   # 终端 A：测试实例
-node web_client.js --server-port 3991                                        # 终端 B：观察窗
-perl client.pl --mode send --state busy                                      # 终端 C：注入状态
-```
-
-先清场再测新场景：给上一轮的每个 `session_id` 发一次 `--state off`，
-否则残留的 8 个会话会把新会话挤到上限之外，看起来像「消息没广播」。
 
 ## 常见问题
 
